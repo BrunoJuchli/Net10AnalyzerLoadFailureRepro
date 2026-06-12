@@ -52,8 +52,20 @@ $toolPath = Join-Path $PSScriptRoot 'Tool'
 $solutionPath = Join-Path $PSScriptRoot 'SolutionToAnalyze'
 $packedPath = Join-Path $PSScriptRoot 'packed'
 $packedReleasePath = Join-Path (Join-Path $packedPath 'package') 'release'
-$toolPackageId = 'Tool'
-$solutionFileName = 'SolutionToAnalyze.slnx'
+
+$toolProjectPath = Join-Path $toolPath 'Tool.csproj'
+$toolProject = [xml](Get-Content -Raw -LiteralPath $toolProjectPath)
+$toolPackageId = $toolProject.Project.PropertyGroup.PackageId
+if ([string]::IsNullOrWhiteSpace($toolPackageId)) {
+    $toolPackageId = [System.IO.Path]::GetFileNameWithoutExtension($toolProjectPath)
+}
+
+$solutionFiles = Get-ChildItem -File -Path $solutionPath -Filter '*.slnx'
+if ($solutionFiles.Count -ne 1) {
+    throw "Expected exactly one solution file in '$solutionPath' but found $($solutionFiles.Count)."
+}
+
+$solutionFileName = $solutionFiles[0].Name
 
 Push-Location $toolPath
 try {
