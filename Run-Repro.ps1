@@ -35,7 +35,7 @@ finally {
 Push-Location $solutionPath
 try {
     Set-SdkVersion -GlobalJsonPath (Join-Path $solutionPath 'global.json') -SdkVersion $netSdkVersionSolutionToAnalyze
-    dotnet dnx Tool --prerelease --source ..\packed\package\release SolutionToAnalyze.slnx
+    dotnet tool exec Tool --prerelease --source ..\packed\package\release SolutionToAnalyze.slnx
 }
 finally {
     Pop-Location
