@@ -22,11 +22,13 @@ function Set-SdkVersion {
 
 $toolPath = Join-Path $PSScriptRoot 'Tool'
 $solutionPath = Join-Path $PSScriptRoot 'SolutionToAnalyze'
+$packedPath = Join-Path $PSScriptRoot 'packed'
+$packedReleasePath = Join-Path (Join-Path $packedPath 'package') 'release'
 
 Push-Location $toolPath
 try {
     Set-SdkVersion -GlobalJsonPath (Join-Path $toolPath 'global.json') -SdkVersion $netSdkVersionTool
-    dotnet pack --artifacts-path ..\packed
+    dotnet pack --artifacts-path $packedPath
 }
 finally {
     Pop-Location
@@ -35,7 +37,7 @@ finally {
 Push-Location $solutionPath
 try {
     Set-SdkVersion -GlobalJsonPath (Join-Path $solutionPath 'global.json') -SdkVersion $netSdkVersionSolutionToAnalyze
-    dotnet tool exec Tool --prerelease --source ..\packed\package\release SolutionToAnalyze.slnx
+    dotnet tool exec Tool --prerelease --source $packedReleasePath SolutionToAnalyze.slnx
 }
 finally {
     Pop-Location
