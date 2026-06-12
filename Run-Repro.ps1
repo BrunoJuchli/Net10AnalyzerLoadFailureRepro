@@ -38,10 +38,8 @@ function Invoke-Dotnet {
 
     & dotnet @Arguments
 
-    $exitCode = $LASTEXITCODE
-
-    if ($null -ne $exitCode -and $exitCode -ne 0) {
-        throw "dotnet $($Arguments -join ' ') failed with exit code $exitCode."
+    if ($LASTEXITCODE -ne 0) {
+        throw "dotnet $($Arguments -join ' ') failed with exit code $LASTEXITCODE."
     }
 }
 
@@ -62,7 +60,7 @@ finally {
 Push-Location $solutionPath
 try {
     Set-SdkVersion -GlobalJsonPath (Join-Path $solutionPath 'global.json') -SdkVersion $netSdkVersionSolutionToAnalyze
-    Invoke-Dotnet @('tool', 'execute', 'Tool', '--prerelease', '--source', $packedReleasePath, 'SolutionToAnalyze.slnx')
+    Invoke-Dotnet @('tool', 'execute', '--prerelease', '--source', $packedReleasePath, 'Tool', 'SolutionToAnalyze.slnx')
 }
 finally {
     Pop-Location
