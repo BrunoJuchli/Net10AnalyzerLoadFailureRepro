@@ -26,8 +26,12 @@ function Set-SdkVersion {
         throw "Failed to parse '$GlobalJsonPath' as JSON. $($_.Exception.Message)"
     }
 
+    if ($null -eq $globalJson.sdk) {
+        $globalJson | Add-Member -NotePropertyName sdk -NotePropertyValue ([pscustomobject]@{})
+    }
+
     $globalJson.sdk.version = $SdkVersion
-    $globalJson | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8NoBOM -LiteralPath $GlobalJsonPath
+    $globalJson | ConvertTo-Json -Depth 100 | Set-Content -Encoding utf8NoBOM -LiteralPath $GlobalJsonPath
 }
 
 function Invoke-Dotnet {
@@ -37,9 +41,10 @@ function Invoke-Dotnet {
     )
 
     & dotnet @Arguments
+    $exitCode = $LASTEXITCODE
 
-    if ($LASTEXITCODE -ne 0) {
-        throw "dotnet $($Arguments -join ' ') failed with exit code $LASTEXITCODE."
+    if ($exitCode -ne 0) {
+        throw "dotnet $($Arguments -join ' ') failed with exit code $exitCode."
     }
 }
 
