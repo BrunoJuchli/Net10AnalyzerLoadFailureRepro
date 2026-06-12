@@ -20,6 +20,21 @@ function Set-SdkVersion {
     $globalJson | ConvertTo-Json -Depth 10 | Set-Content -Path $GlobalJsonPath
 }
 
+function Invoke-Dotnet {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string[]]$Arguments
+    )
+
+    & dotnet @Arguments
+
+    $exitCode = $LASTEXITCODE
+
+    if ($null -ne $exitCode -and $exitCode -ne 0) {
+        throw "dotnet $($Arguments -join ' ') failed with exit code $exitCode."
+    }
+}
+
 $toolPath = Join-Path $PSScriptRoot 'Tool'
 $solutionPath = Join-Path $PSScriptRoot 'SolutionToAnalyze'
 $packedPath = Join-Path $PSScriptRoot 'packed'
@@ -28,7 +43,7 @@ $packedReleasePath = Join-Path (Join-Path $packedPath 'package') 'release'
 Push-Location $toolPath
 try {
     Set-SdkVersion -GlobalJsonPath (Join-Path $toolPath 'global.json') -SdkVersion $netSdkVersionTool
-    dotnet pack --artifacts-path $packedPath
+    Invoke-Dotnet @('pack', '--artifacts-path', $packedPath)
 }
 finally {
     Pop-Location
@@ -37,7 +52,7 @@ finally {
 Push-Location $solutionPath
 try {
     Set-SdkVersion -GlobalJsonPath (Join-Path $solutionPath 'global.json') -SdkVersion $netSdkVersionSolutionToAnalyze
-    dotnet tool exec Tool --prerelease --source $packedReleasePath SolutionToAnalyze.slnx
+    Invoke-Dotnet @('tool', 'exec', 'Tool', '--prerelease', '--source', $packedReleasePath, 'SolutionToAnalyze.slnx')
 }
 finally {
     Pop-Location
