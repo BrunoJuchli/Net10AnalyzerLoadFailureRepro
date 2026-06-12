@@ -2,10 +2,10 @@
 /shelf/
 /workspace.xml
 # Rider ignored files
-/projectSettingsUpdater.xml
-/.idea.Repro.iml
-/contentModel.xml
 /modules.xml
+/.idea.Tool.iml
+/projectSettingsUpdater.xml
+/contentModel.xml
 # Editor-based HTTP Client requests
 /httpRequests/
 # Ignored default folder with query files
