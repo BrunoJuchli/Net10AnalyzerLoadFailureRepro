@@ -27,7 +27,7 @@ function Set-SdkVersion {
     }
 
     $globalJson.sdk.version = $SdkVersion
-    $globalJson | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $GlobalJsonPath
+    $globalJson | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 -LiteralPath $GlobalJsonPath
 }
 
 function Invoke-Dotnet {
