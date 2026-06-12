@@ -16,14 +16,14 @@ function Set-SdkVersion {
     )
 
     if (-not (Test-Path -LiteralPath $GlobalJsonPath)) {
-        throw "Missing global.json at '$GlobalJsonPath'."
+        throw "Missing global.json at '$GlobalJsonPath' while updating SDK version to '$SdkVersion'."
     }
 
     try {
         $globalJson = Get-Content -Raw -LiteralPath $GlobalJsonPath | ConvertFrom-Json
     }
     catch {
-        throw "Failed to parse '$GlobalJsonPath' as JSON. $($_.Exception.Message)"
+        throw "Failed to parse '$GlobalJsonPath' as JSON while updating SDK version to '$SdkVersion'. $($_.Exception.Message)"
     }
 
     if ($null -eq $globalJson.sdk) {
@@ -52,6 +52,8 @@ $toolPath = Join-Path $PSScriptRoot 'Tool'
 $solutionPath = Join-Path $PSScriptRoot 'SolutionToAnalyze'
 $packedPath = Join-Path $PSScriptRoot 'packed'
 $packedReleasePath = Join-Path (Join-Path $packedPath 'package') 'release'
+$toolPackageId = 'Tool'
+$solutionFileName = 'SolutionToAnalyze.slnx'
 
 Push-Location $toolPath
 try {
@@ -65,7 +67,7 @@ finally {
 Push-Location $solutionPath
 try {
     Set-SdkVersion -GlobalJsonPath (Join-Path $solutionPath 'global.json') -SdkVersion $netSdkVersionSolutionToAnalyze
-    Invoke-Dotnet @('tool', 'execute', '--prerelease', '--source', $packedReleasePath, 'Tool', 'SolutionToAnalyze.slnx')
+    Invoke-Dotnet @('tool', 'execute', '--prerelease', '--source', $packedReleasePath, $toolPackageId, $solutionFileName)
 }
 finally {
     Pop-Location
