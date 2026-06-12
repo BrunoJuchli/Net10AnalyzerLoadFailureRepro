@@ -15,9 +15,19 @@ function Set-SdkVersion {
         [string]$SdkVersion
     )
 
-    $globalJson = Get-Content -Raw -Path $GlobalJsonPath | ConvertFrom-Json
+    if (-not (Test-Path -LiteralPath $GlobalJsonPath)) {
+        throw "Missing global.json at '$GlobalJsonPath'."
+    }
+
+    try {
+        $globalJson = Get-Content -Raw -LiteralPath $GlobalJsonPath | ConvertFrom-Json
+    }
+    catch {
+        throw "Failed to parse '$GlobalJsonPath' as JSON. $($_.Exception.Message)"
+    }
+
     $globalJson.sdk.version = $SdkVersion
-    $globalJson | ConvertTo-Json -Depth 10 | Set-Content -NoNewline -Path $GlobalJsonPath
+    $globalJson | ConvertTo-Json -Depth 10 | Set-Content -Path $GlobalJsonPath
 }
 
 function Invoke-Dotnet {
