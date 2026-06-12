@@ -17,7 +17,7 @@ function Set-SdkVersion {
 
     $globalJson = Get-Content -Raw -Path $GlobalJsonPath | ConvertFrom-Json
     $globalJson.sdk.version = $SdkVersion
-    $globalJson | ConvertTo-Json -Depth 10 | Set-Content -Path $GlobalJsonPath
+    $globalJson | ConvertTo-Json -Depth 10 | Set-Content -NoNewline -Path $GlobalJsonPath
 }
 
 function Invoke-Dotnet {
@@ -52,7 +52,7 @@ finally {
 Push-Location $solutionPath
 try {
     Set-SdkVersion -GlobalJsonPath (Join-Path $solutionPath 'global.json') -SdkVersion $netSdkVersionSolutionToAnalyze
-    Invoke-Dotnet @('tool', 'exec', 'Tool', '--prerelease', '--source', $packedReleasePath, 'SolutionToAnalyze.slnx')
+    Invoke-Dotnet @('tool', 'execute', 'Tool', '--prerelease', '--source', $packedReleasePath, 'SolutionToAnalyze.slnx')
 }
 finally {
     Pop-Location
